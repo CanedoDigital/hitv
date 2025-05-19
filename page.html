@@ -1,1384 +1,229 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>HiTV</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --netflix-red: #4a0101;
-      --netflix-black: #141414;
-      --netflix-dark: #000000;
-      --netflix-gray: #808080;
-      --netflix-light-gray: #e5e5e5;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: var(--netflix-black);
-      color: #fff;
-      overflow-x: hidden;
-    }
-
-    /* HEADER */
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-      padding: 16px 4%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 1000;
-      transition: background-color 0.3s;
-    }
-
-    header.scrolled {
-      background-color: var(--netflix-dark);
-    }
-
-    .logo {
-      color: var(--netflix-red);
-      font-size: 32px;
-      font-weight: bold;
-    }
-
-    nav ul {
-      display: flex;
-      list-style: none;
-    }
-
-    nav ul li {
-      margin-left: 20px;
-    }
-
-    nav ul li a {
-      color: #fff;
-      text-decoration: none;
-      font-size: 14px;
-      transition: color 0.3s;
-    }
-
-    nav ul li a:hover,
-    nav ul li a.active {
-      color: var(--netflix-light-gray);
-    }
-
-    .search-profile {
-      display: flex;
-      align-items: center;
-    }
-
-    .search {
-      position: relative;
-      margin-right: 20px;
-    }
-
-    .search input {
-      background-color: transparent;
-      border: 1px solid var(--netflix-gray);
-      color: white;
-      padding: 8px 30px 8px 10px;
-      border-radius: 4px;
-      font-size: 14px;
-      transition: width 0.3s, background-color 0.3s;
-      width: 200px;
-    }
-
-    .search input::placeholder {
-      color: var(--netflix-gray);
-    }
-
-    .search i {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--netflix-gray);
-    }
-
-    .profile {
-      width: 32px;
-      height: 32px;
-      border-radius: 4px;
-      background-color: #666;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* HERO */
-    .hero {
-      height: 80vh;
-      width: 100%;
-      position: relative;
-      margin-bottom: 30px;
-      background: linear-gradient(to top, var(--netflix-black) 0%, transparent 60%), 
-                  url('https://image.tmdb.org/t/p/original/9Ijv9yyg32mlQbJDYbOoKlWlWbp.jpg');
-      background-size: cover;
-      background-position: center top;
-      display: flex;
-      align-items: flex-end;
-      padding: 0 4% 30px;
-    }
-
-    .hero-content {
-      max-width: 600px;
-      margin-bottom: 30px;
-    }
-
-    .hero-title {
-      font-size: 48px;
-      margin-bottom: 15px;
-    }
-
-    .hero-description {
-      font-size: 18px;
-      margin-bottom: 20px;
-      line-height: 1.5;
-    }
-
-    .hero-buttons {
-      display: flex;
-      gap: 10px;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border-radius: 4px;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 16px;
-    }
-
-    .btn-play {
-      background-color: white;
-      color: black;
-    }
-
-    .btn-info {
-      background-color: rgba(109, 109, 110, 0.7);
-      color: white;
-    }
-
-    /* PLAYER */
-    #player-container {
-      display: none;
-      width: 100%;
-      height: 70vh;
-      position: relative;
-      margin-bottom: 30px;
-      background-color: black;
-    }
-
-    #player-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    #close-player {
-      position: absolute;
-      right: 20px;
-      top: 20px;
-      background-color: rgba(0, 0, 0, 0.5);
-      color: white;
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      font-size: 18px;
-      cursor: pointer;
-      z-index: 2;
-    }
-
-    /* CONTENT SECTIONS */
-    .main-container {
-      padding-top: 70px;
-    }
-
-    .section {
-      padding: 0 4% 30px;
-    }
-
-    .section h2 {
-      font-size: 24px;
-      margin-bottom: 15px;
-    }
-
-    .content-slider {
-      position: relative;
-    }
-
-    .slider-control {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background-color: rgba(0, 0, 0, 0.5);
-      color: white;
-      border: none;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 2;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .content-slider:hover .slider-control {
-      opacity: 1;
-    }
-
-    .slider-prev {
-      left: 10px;
-    }
-
-    .slider-next {
-      right: 10px;
-    }
-
-    .content-row {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      scroll-behavior: smooth;
-      padding: 10px 0;
-      scrollbar-width: none; /* Firefox */
-    }
-
-    .content-row::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Opera */
-    }
-
-    .content-item {
-      flex: 0 0 auto;
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.3s;
-      margin-right: 4px;
-    }
-
-    .movie-item {
-      width: 240px;
-      height: 135px;
-      border-radius: 4px;
-      background-size: cover;
-      background-position: center;
-      overflow: hidden;
-    }
-
-    .series-item {
-      width: 240px;
-      height: 360px;
-      border-radius: 4px;
-      background-size: cover;
-      background-position: center;
-      overflow: hidden;
-    }
-
-    .content-item:hover {
-      transform: scale(1.08);
-      z-index: 1;
-    }
-
-    .content-info {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
-      padding: 10px;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .content-item:hover .content-info {
-      opacity: 1;
-    }
-
-    .content-title {
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 5px;
-    }
-
-    .content-meta {
-      display: flex;
-      gap: 10px;
-      font-size: 12px;
-      color: var(--netflix-light-gray);
-      margin-bottom: 5px;
-    }
-
-    .content-buttons {
-      display: flex;
-      gap: 5px;
-      margin-top: 8px;
-    }
-
-    .content-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background-color: rgba(42, 42, 42, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 12px;
-    }
-
-    .content-btn:hover {
-      transform: scale(1.1);
-    }
-
-    /* SERIES DETAIL */
-    #series-detail {
-      display: none;
-      padding: 70px 4% 30px;
-      background-color: var(--netflix-dark);
-    }
-
-    .series-header {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-
-    .series-poster {
-      width: 250px;
-      height: 375px;
-      border-radius: 8px;
-      background-size: cover;
-      background-position: center;
-    }
-
-    .series-info {
-      flex: 1;
-    }
-
-    .series-title {
-      font-size: 36px;
-      margin-bottom: 15px;
-    }
-
-    .series-meta {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 15px;
-      color: var(--netflix-light-gray);
-    }
-
-    .series-description {
-      line-height: 1.5;
-      margin-bottom: 20px;
-      max-width: 800px;
-    }
-
-    .series-genres {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .genre-tag {
-      padding: 3px 10px;
-      border-radius: 15px;
-      background-color: rgba(255, 255, 255, 0.1);
-      font-size: 14px;
-    }
-
-    .season-selector {
-      margin-bottom: 20px;
-    }
-
-    .season-selector select {
-      background-color: rgba(42, 42, 42, 0.6);
-      color: white;
-      padding: 8px 12px;
-      border: 1px solid var(--netflix-gray);
-      border-radius: 4px;
-      font-size: 16px;
-    }
-
-    .episodes-list {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .episode {
-      display: flex;
-      gap: 15px;
-      padding: 15px;
-      border-radius: 4px;
-      transition: background-color 0.3s;
-      cursor: pointer;
-    }
-
-    .episode:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .episode-thumb {
-      width: 180px;
-      height: 100px;
-      border-radius: 4px;
-      background-size: cover;
-      background-position: center;
-      position: relative;
-    }
-
-    .episode-number {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-    }
-
-    .episode-play {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: rgba(0, 0, 0, 0.7);
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .episode:hover .episode-play {
-      opacity: 1;
-    }
-
-    .episode-info {
-      flex: 1;
-    }
-
-    .episode-title {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
-    }
-
-    .episode-title h3 {
-      font-size: 16px;
-      font-weight: 500;
-    }
-
-    .episode-duration {
-      color: var(--netflix-gray);
-      font-size: 14px;
-    }
-
-    .episode-description {
-      font-size: 14px;
-      color: var(--netflix-light-gray);
-      line-height: 1.4;
-    }
-
-    .back-btn {
-      background-color: transparent;
-      border: none;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
-    /* FOOTER */
-    footer {
-      padding: 40px 4%;
-      color: var(--netflix-gray);
-      font-size: 14px;
-    }
-
-    .footer-content {
-      max-width: 980px;
-      margin: 0 auto;
-    }
-
-    .footer-links {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    .footer-links a {
-      color: var(--netflix-gray);
-      text-decoration: none;
-      margin-bottom: 10px;
-      display: block;
-    }
-
-    .footer-links a:hover {
-      text-decoration: underline;
-    }
-
-    .footer-copy {
-      margin-top: 20px;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 1200px) {
-      .hero-title {
-        font-size: 40px;
-      }
-    }
-
-    @media (max-width: 992px) {
-      .footer-links {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    @media (max-width: 768px) {
-      .hero {
-        height: 60vh;
-      }
-      .hero-title {
-        font-size: 32px;
-      }
-      .hero-description {
-        font-size: 16px;
-      }
-      .movie-item {
-        width: 200px;
-        height: 112px;
-      }
-      .series-item {
-        width: 200px;
-        height: 300px;
-      }
-      .series-header {
-        flex-direction: column;
-      }
-      .series-poster {
-        width: 200px;
-        height: 300px;
-      }
-      .search input {
-        width: 150px;
-      }
-    }
-
-    @media (max-width: 576px) {
-      .hero {
-        height: 50vh;
-      }
-      .footer-links {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .search {
-        display: none;
-      }
-      .movie-item {
-        width: 150px;
-        height: 84px;
-      }
-      .series-item {
-        width: 150px;
-        height: 225px;
-      }
-      nav ul li {
-        margin-left: 15px;
-      }
-      nav ul li a {
-        font-size: 12px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HiTV - Iniciar Sesión</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            padding: 24px 48px;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #0078ff;
+        }
+        
+        .login-container {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)), 
+                        url('/api/placeholder/1920/1080') no-repeat center center;
+            background-size: cover;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .login-form {
+            background-color: rgba(0, 20, 50, 0.85);
+            border-radius: 8px;
+            padding: 60px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        
+        .login-title {
+            margin-bottom: 28px;
+            font-size: 32px;
+            font-weight: 600;
+        }
+        
+        .input-group {
+            margin-bottom: 16px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #ccc;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 16px;
+            border-radius: 4px;
+            border: none;
+            background-color: #121b2e;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #0078ff;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #0078ff;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 24px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #0066cc;
+        }
+        
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+        
+        .remember {
+            display: flex;
+            align-items: center;
+        }
+        
+        .remember input {
+            margin-right: 8px;
+        }
+        
+        .forgot-password {
+            color: #ccc;
+            text-decoration: none;
+        }
+        
+        .forgot-password:hover {
+            text-decoration: underline;
+            color: #0078ff;
+        }
+        
+        .signup-prompt {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #ccc;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: #9aa5b5;
+            font-size: 12px;
+        }
+        
+        .error-message {
+            color: #ff3333;
+            margin-top: 16px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <!-- HEADER -->
-  <header id="header">
-    <div class="logo">HiTV</div>
-    <nav>
-      <ul>
-        <li><a href="#" class="active">Inicio</a></li>
-        <li><a href="#">Series</a></li>
-        <li><a href="#">Películas</a></li>
-        <li><a href="#">Novedades</a></li>
-      </ul>
-    </nav>
-  </header>
-
-  <!-- PLAYER -->
-  <div id="player-container">
-    <button id="close-player"><i class="fas fa-times"></i></button>
-    <iframe id="video-player" src="" frameborder="0" allowfullscreen allow="autoplay"></iframe>
-  </div>
-
-  <!-- MAIN CONTENT -->
-  <div class="main-container">
-    <!-- HERO -->
-    <div class="hero">
-      <div class="hero-content">
-        <h1 class="hero-title">Toy Story 1</h1>
-        <p class="hero-description">
-          Un grupo de niños se enfrenta a una serie de eventos sobrenaturales en un pequeño pueblo donde nada es lo que parece.
-        </p>
-        <div class="hero-buttons">
-          <button class="btn btn-play" data-stream="https://archive.org/embed/1.avi_202505">
-            <i class="fas fa-play"></i> Reproducir
-          </button>
-          <button class="btn btn-info">
-            <i class="fas fa-info-circle"></i> Más información
-          </button>
+    <div class="header">
+        <div class="logo">HiTV</div>
+    </div>
+    
+    <div class="login-container">
+        <div class="login-form">
+            <h1 class="login-title">Iniciar Sesión</h1>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <div id="errorMessage" class="error-message">
+                    Correo electrónico o contraseña incorrectos. Por favor, intente de nuevo.
+                </div>
+                
+                <button type="submit" class="submit-btn">Iniciar Sesión</button>
+                
+                <div class="remember-forgot">
+                    <div class="remember">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Recuérdame</label>
+                    </div>
+                    <a href="#" class="forgot-password">¿Necesitas ayuda?</a>
+                </div>
+            </form>
         </div>
-      </div>
     </div>
-
-    <!-- SERIES SECTION -->
-    <div class="section">
-      <h2>Series populares</h2>
-      <div class="content-slider">
-        <button class="slider-control slider-prev"><i class="fas fa-chevron-left"></i></button>
-        <div class="content-row" id="popular-series">
-          <!-- Series will be dynamically added here -->
-        </div>
-        <button class="slider-control slider-next"><i class="fas fa-chevron-right"></i></button>
-      </div>
+    
+    <div class="footer">
+        <p>© 2025 HiTV. Todos los derechos reservados.</p>
     </div>
-
-    <!-- MOVIES SECTION -->
-    <div class="section">
-      <h2>Películas populares</h2>
-      <div class="content-slider">
-        <button class="slider-control slider-prev"><i class="fas fa-chevron-left"></i></button>
-        <div class="content-row" id="popular-movies">
-          <!-- Movies will be dynamically added here -->
-        </div>
-        <button class="slider-control slider-next"><i class="fas fa-chevron-right"></i></button>
-      </div>
-    </div>
-
-    <!-- TRENDING SECTION -->
-    <div class="section">
-      <h2>Tendencias ahora</h2>
-      <div class="content-slider">
-        <button class="slider-control slider-prev"><i class="fas fa-chevron-left"></i></button>
-        <div class="content-row" id="trending">
-          <!-- Trending content will be dynamically added here -->
-        </div>
-        <button class="slider-control slider-next"><i class="fas fa-chevron-right"></i></button>
-      </div>
-    </div>
-
-  <!-- SERIES DETAIL VIEW -->
-  <div id="series-detail">
-    <button class="back-btn" id="back-to-browse">
-      <i class="fas fa-arrow-left"></i> Volver
-    </button>
-    <div class="series-header">
-      <div class="series-poster" id="detail-poster"></div>
-      <div class="series-info">
-        <h1 class="series-title" id="detail-title"></h1>
-        <div class="series-meta" id="detail-meta"></div>
-        <p class="series-description" id="detail-description"></p>
-        <div class="series-genres" id="detail-genres"></div>
-      </div>
-    </div>
-    <div class="season-selector">
-      <select id="season-select">
-        <!-- Seasons will be dynamically added here -->
-      </select>
-    </div>
-    <div class="episodes-list" id="episodes-container">
-      <!-- Episodes will be dynamically added here -->
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-content">
-      <div class="footer-links">
-        <a href="#">Preguntas frecuentes</a>
-        <a href="#">Centro de ayuda</a>
-        <a href="#">Cuenta</a>
-        <a href="#">Prensa</a>
-        <a href="#">Relaciones con inversionistas</a>
-        <a href="#">Empleo</a>
-        <a href="#">Formas de ver</a>
-        <a href="#">Términos de uso</a>
-        <a href="#">Privacidad</a>
-        <a href="#">Preferencias de cookies</a>
-        <a href="#">Información corporativa</a>
-        <a href="#">Contáctanos</a>
-      </div>
-      <div class="footer-copy">
-        &copy; 2025 Netflix Clon. Todos los derechos reservados.
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    // DATA - Movies
-    const movies = [
-      {
-        id: 1,
-        title: "Toy Story",
-        backdrop: "https://image.tmdb.org/t/p/original/nC3YWqBJJ6XdUnviCUFWbyOYdn7.jpg",
-        year: 2024,
-        rating: "13+",
-        duration: "166 min",
-        stream: "https://streamable.com/e/lgl115"
-      },
-      {
-        id: 2,
-        title: "Oppenheimer",
-        backdrop: "https://image.tmdb.org/t/p/w500/6DrHO1jr3qVrViUO6s6kFiAGM7.jpg",
-        year: 2023,
-        rating: "16+",
-        duration: "180 min",
-        stream: "https://streamable.com/e/abc123"
-      },
-      {
-        id: 3,
-        title: "Guardianes de la Galaxia Vol. 3",
-        backdrop: "https://www.themoviedb.org/t/p/w1280/r2J02Z2OpNTctfOSN1Ydgii51I3.jpg",
-        year: 2023,
-        rating: "13+",
-        duration: "149 min",
-        stream: "https://streamable.com/e/xyz456"
-      },
-      {
-        id: 4,
-        title: "Misión Imposible: Sentencia Mortal",
-        backdrop: "https://image.tmdb.org/t/p/w500/628Dep6AxEtDxjZoGP78TsOxYbK.jpg",
-        year: 2023,
-        rating: "13+",
-        duration: "163 min",
-        stream: "https://streamable.com/e/def789"
-      },
-      {
-        id: 5,
-        title: "Barbie",
-        backdrop: "https://image.tmdb.org/t/p/w500/ctMserH8g2SeOAnCw5gFjdQF8mo.jpg",
-        year: 2023,
-        rating: "7+",
-        duration: "114 min",
-        stream: "https://streamable.com/e/ghi012"
-      },
-      {
-        id: 6,
-        title: "John Wick 4",
-        backdrop: "https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg",
-        year: 2023,
-        rating: "18+",
-        duration: "169 min",
-        stream: "https://streamable.com/e/jkl345"
-      },
-      {
-        id: 7,
-        title: "El Acantilado del Asesino",
-        backdrop: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhy0R6P5ux93Ho-dCrkiy8rxyD4u_7PGW14J1UGfAb1K5F41H2Zmg8WWX3s-_wK9w_LFR97SSfQqOJzSjTuURDvVbPRGs3Ir9AC5RGdChF-rN9pjIs_7a-RnmZY2XhgHrnlh1eefbvGuVI/s1600/El+asesino+del+acantilado.JPG",
-        year: 2023,
-        rating: "16+",
-        duration: "117 min",
-        stream: "https://streamable.com/e/mno678"
-      },
-      {
-        id: 8,
-        title: "Avatar: El Sentido del Agua",
-        backdrop: "https://image.tmdb.org/t/p/w500/7ABsaBkO1jA2psC8Hy4IDhkID4h.jpg",
-        year: 2022,
-        rating: "13+",
-        duration: "192 min",
-        stream: "https://streamable.com/e/pqr901"
-      }
-    ];
-
-    // DATA - Series
-    const series = [
-      {
-        id: 101,
-        title: "Stranger Things",
-        poster: "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg",
-        backdrop: "https://image.tmdb.org/t/p/w500/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
-        year: "2016-2024",
-        rating: "16+",
-        description: "Cuando un niño desaparece, un pequeño pueblo descubre un misterio que involucra experimentos secretos, fuerzas sobrenaturales aterradoras y una niña muy extraña.",
-        genres: ["Drama", "Ciencia ficción", "Misterio"],
-        seasons: [
-          {
-            number: 1,
-            episodes: [
-              {
-                number: 1,
-                title: "La desaparición de Will Byers",
-                duration: "47 min",
-                thumb: "https://image.tmdb.org/t/p/w500/AdwF2jXvhdODr6gUZ61bHKRkz09.jpg",
-                description: "Un niño desaparece en un pequeño pueblo dejando a todos desconcertados, mientras tanto una extraña niña aparece con poderes sobrenaturales.",
-                stream: "https://streamable.com/e/st101"
-              },
-              {
-                number: 2,
-                title: "La chica rara de la calle Maple",
-                duration: "45 min",
-                thumb: "https://image.tmdb.org/t/p/w500/7qm7OSNzw57leNtgUxN0hfLrlGp.jpg",
-                description: "Mike esconde a Eleven en su casa. Joyce recibe una llamada extraña. Nancy busca a su amiga Barb desaparecida.",
-                stream: "https://streamable.com/e/st102"
-              },
-              {
-                number: 3,
-                title: "Todo está conectado",
-                duration: "49 min",
-                thumb: "https://image.tmdb.org/t/p/w500/2PqYoOMYYUQ1o8x6QX7Pvs7NlTt.jpg",
-                description: "Un cuerpo es descubierto. Los chicos intentan hablar con Eleven sobre Will. Joyce está convencida de que Will está intentando comunicarse con ella.",
-                stream: "https://streamable.com/e/st103"
-              },
-              {
-                number: 4,
-                title: "El cuerpo",
-                duration: "51 min",
-                thumb: "https://image.tmdb.org/t/p/w500/6apPZ3JQeOyLerg5LeBLDXDrCjW.jpg",
-                description: "Joyce se niega a creer que Will está muerto, y continúa tratando de comunicarse con él. Los chicos hacen un impactante descubrimiento.",
-                stream: "https://streamable.com/e/st104"
-              }
-            ]
-          },
-          {
-            number: 2,
-            episodes: [
-              {
-                number: 1,
-                title: "MADMAX",
-                duration: "48 min",
-                thumb: "https://image.tmdb.org/t/p/w500/fnCJN2Nt8Umb8MmlRgDZ4rtl9Kb.jpg",
-                description: "Mientras la ciudad se prepara para Halloween, una rival desafía a Max y una grabación sospechosa conduce a la búsqueda de una nueva amenaza.",
-                stream: "https://streamable.com/e/st201"
-              },
-              {
-                number: 2,
-                title: "Truco o trato, bicho raro",
-                duration: "56 min",
-                thumb: "https://image.tmdb.org/t/p/w500/tJcZiAiJJVnQYuigEv53Cs5YcvP.jpg",
-                description: "Después de que Will ve algo terrible en la noche de Halloween, Mike se preocupa por sus alucinaciones. Nancy lidia con la verdad sobre la muerte de Barb.",
-                stream: "https://streamable.com/e/st202"
-              },
-              {
-                number: 3,
-                title: "El renacuajo",
-                duration: "51 min",
-                thumb: "https://image.tmdb.org/t/p/w500/7Ts6KkCUoFLjTWUKBUjmHDzXZIK.jpg",
-                description: "Dustin adopta a una extraña criatura como mascota, y Eleven se vuelve cada vez más impaciente. Bob decodifica un mensaje de Will.",
-                stream: "https://streamable.com/e/st203"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 102,
-        title: "The Witcher",
-        poster: "https://image.tmdb.org/t/p/w500/cZ0d3rtvXPVvuiX22sP79K3Hmjz.jpg",
-        backdrop: "https://image.tmdb.org/t/p/w500/jBJWaqoSCiARWtfV0GlqHrcdidd.jpg",
-        year: "2019-2024",
-        rating: "18+",
-        description: "Geralt de Rivia, un cazador de monstruos mutante, viaja en busca de su destino en un mundo turbulento donde las personas suelen ser más malvadas que las bestias.",
-        genres: ["Drama", "Fantasía", "Acción"],
-        seasons: [
-          {
-            number: 1,
-            episodes: [
-              {
-                number: 1,
-                title: "El principio del fin",
-                duration: "61 min",
-                thumb: "https://image.tmdb.org/t/p/w500/uQ2K2L9GVMzMLlpLbJ9SrOXDuRz.jpg",
-                description: "Geralt de Rivia, un cazador de monstruos mutante, mata a una bestia en el pueblo y se ve arrastrado a una disputa relacionada con una princesa maldita.",
-                stream: "https://streamable.com/e/wt101"
-              },
-              {
-                number: 2,
-                title: "Cuatro marcos",
-                duration: "60 min",
-                thumb: "https://image.tmdb.org/t/p/w500/csc7gTcIWDGsUGvfqZUVEiXUSqm.jpg",
-                description: "Obligado a encontrar un refugio nocturno, Geralt se topa con un bardo locuaz y un grupo de elfos que buscan vengarse de la humanidad.",
-                stream: "https://streamable.com/e/wt102"
-              },
-              {
-                number: 3,
-                title: "Luna traicionera",
-                duration: "67 min",
-                thumb: "https://image.tmdb.org/t/p/w500/5ybrTyaJOF8ayLiQYgfnHQ02YKZ.jpg",
-                description: "Geralt se encuentra con un hechicero después de una cacería y es obligado a enfrentar las consecuencias de una ley de la sorpresa.",
-                stream: "https://streamable.com/e/wt103"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 103,
-        title: "Wednesday",
-        poster: "https://image.tmdb.org/t/p/w500/9PFonBhy4cQy7Jz20NpMygczOkv.jpg",
-        backdrop: "https://image.tmdb.org/t/p/w500/iHSwvRVsRyxpX7FE7GbviaDvgGZ.jpg",
-        year: "2022-2024",
-        rating: "13+",
-        description: "Lista pero inadaptada, Wednesday Addams investiga una ola de asesinatos mientras hace nuevos amigos y enemigos en la Academia Nevermore.",
-        genres: ["Comedia", "Fantasía", "Misterio"],
-        seasons: [
-          {
-            number: 1,
-            episodes: [
-              {
-                number: 1,
-                title: "Miércoles es hija del dolor",
-                duration: "59 min",
-                thumb: "https://image.tmdb.org/t/p/w500/acKVE0GcZ2rVPCjnUPS54CnDPMO.jpg",
-                description: "Cuando un incidente grotesco la hace expulsar, Wednesday es enviada a la peculiar Academia Nevermore, donde comienza a investigar una serie de asesinatos.",
-                stream: "https://streamable.com/e/wd101"
-              },
-              {
-                number: 2,
-                title: "¡Desgracia, qué desgracia!",
-                duration: "49 min",
-                thumb: "https://image.tmdb.org/t/p/w500/9zcbqSxdsRMZWHYtyCd3nlEV9gv.jpg",
-                description: "El primer día de clases de Wednesday incluye botánica inusual, un concurso de remo y un encuentro espeluznante. Más tarde, explora un siniestro misterio del pasado.",
-                stream: "https://streamable.com/e/wd102"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 104,
-        title: "Dark",
-        poster: "https://www.themoviedb.org/t/p/w1280/1DLjjvSWMYo17B7wuz6YikB96hH.jpg",
-        backdrop: "https://image.tmdb.org/t/p/w500/3lBDg3i6nn5R2NKFCJ6oKyUo2j5.jpg",
-        year: "2017-2020",
-        rating: "16+",
-        description: "La desaparición de dos niños expone las dobles vidas y las relaciones fracturadas entre cuatro familias de un pequeño pueblo alemán que es parte de un misterio siniestro que abarca tres generaciones.",
-        genres: ["Drama", "Misterio", "Ciencia ficción"],
-        seasons: [
-          {
-            number: 1,
-            episodes: [
-              {
-                number: 1,
-                title: "Secretos",
-                duration: "52 min",
-                thumb: "https://image.tmdb.org/t/p/w500/arQwb4AiLt1R0BMxfF8l9R6Vxal.jpg",
-                description: "En 2019, la desaparición de un niño local establece conexiones nerviosas entre las vidas de cuatro familias mientras descubren un misterio que abarca tres generaciones.",
-                stream: "https://streamable.com/e/dk101"
-              },
-              {
-                number: 2,
-                title: "Mentiras",
-                duration: "45 min",
-                thumb: "https://image.tmdb.org/t/p/w500/gXWFwzl1sI18be6RDyAn8B6Sat.jpg",
-                description: "Cuando un misterioso forastero llega a la ciudad, los eventos extraños comienzan a acumularse y culminan en una revelación impactante.",
-                stream: "https://streamable.com/e/dk102"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 105,
-        title: "Breaking Bad",
-        poster: "https://www.themoviedb.org/t/p/w1280/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg",
-        backdrop: "https://image.tmdb.org/t/p/w500/hbgcocBkPWDvMUv5sMVNWP5gKWY.jpg",
-        year: "2008-2013",
-        rating: "18+",
-        description: "Un profesor de química con cáncer se une con un exalumno para asegurar el futuro de su familia al fabricar y vender metanfetamina.",
-        genres: ["Drama", "Crimen", "Suspenso"],
-        seasons: [
-          {
-            number: 1,
-            episodes: [
-              {
-                number: 1,
-                title: "Piloto",
-                duration: "58 min",
-                thumb: "https://image.tmdb.org/t/p/w500/3xZfhTL5HL1u0UTsRrxXHVMLoSu.jpg",
-                description: "Un profesor de química de un instituto, al que le diagnostican un cáncer de pulmón, decide empezar a fabricar metanfetamina para asegurar el bienestar económico de su familia.",
-                stream: "https://streamable.com/e/bb101"
-              },
-              {
-                number: 2,
-                title: "El gato está en la bolsa...",
-                duration: "48 min",
-                thumb: "https://image.tmdb.org/t/p/w500/tjDNvbokPLtEnpFyFPyXMOd6Zr1.jpg",
-                description: "Después de la decisión de Walter de comenzar a producir metanfetamina, él y Jesse deben lidiar con las terribles consecuencias de sus acciones.",
-                stream: "https://streamable.com/e/bb102"
-              }
-            ]
-          }
-        ]
-      }
-    ];
-
-    // DATA - Trending
-    const trending = [
-      {
-        id: 201,
-        title: "El Juego del Calamar",
-        backdrop: "https://image.tmdb.org/t/p/w500/oaGvjB0DvdhXhOAuADfHb261ZHa.jpg",
-        type: "series",
-        year: 2021,
-        rating: "18+",
-        stream: "https://streamable.com/e/squid1"
-      },
-      {
-        id: 202,
-        title: "The Last of Us",
-        backdrop: "https://www.themoviedb.org/t/p/w1280/dmo6TYuuJgaYinXBPjrgG9mB5od.jpg",
-        type: "series",
-        year: 2023,
-        rating: "18+",
-        stream: "https://streamable.com/e/tlou1"
-      },
-      {
-        id: 203,
-        title: "Deadpool 3",
-        backdrop: "https://www.themoviedb.org/t/p/w1280/to0spRl1CMDvyUbOnbb4fTk3VAd.jpg",
-        type: "movie",
-        year: 2024,
-        rating: "18+",
-        stream: "https://streamable.com/e/dp3"
-      },
-      {
-        id: 204,
-        title: "House of the Dragon",
-        backdrop: "https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg",
-        type: "series",
-        year: 2022,
-        rating: "18+",
-        stream: "https://streamable.com/e/hotd1"
-      },
-      {
-        id: 205,
-        title: "House of the Dragon",
-        backdrop: "https://image.tmdb.org/t/p/w500/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg",
-        type: "series",
-        year: 2022,
-        rating: "18+",
-        stream: "https://streamable.com/e/hotd1"
-      },
-      
-    ];
-
-
-    // POPULATE CONTENT
-    function populateMovies() {
-      const moviesContainer = document.getElementById('popular-movies');
-      
-      movies.forEach(movie => {
-        const movieElement = document.createElement('div');
-        movieElement.className = 'content-item movie-item';
-        movieElement.style.backgroundImage = `url('${movie.backdrop}')`;
-        movieElement.dataset.stream = movie.stream;
-        
-        const infoHTML = `
-          <div class="content-info">
-            <h3 class="content-title">${movie.title}</h3>
-            <div class="content-meta">
-              <span>${movie.year}</span>
-              <span>${movie.rating}</span>
-              <span>${movie.duration}</span>
-            </div>
-            <div class="content-buttons">
-              <button class="content-btn play-btn" data-stream="${movie.stream}"><i class="fas fa-play"></i></button>
-              <button class="content-btn"><i class="fas fa-plus"></i></button>
-              <button class="content-btn"><i class="fas fa-thumbs-up"></i></button>
-            </div>
-          </div>
-        `;
-        
-        movieElement.innerHTML = infoHTML;
-        moviesContainer.appendChild(movieElement);
-      });
-    }
-
-    function populateSeries() {
-      const seriesContainer = document.getElementById('popular-series');
-      
-      series.forEach(show => {
-        const seriesElement = document.createElement('div');
-        seriesElement.className = 'content-item series-item';
-        seriesElement.style.backgroundImage = `url('${show.poster}')`;
-        seriesElement.dataset.seriesId = show.id;
-        
-        const infoHTML = `
-          <div class="content-info">
-            <h3 class="content-title">${show.title}</h3>
-            <div class="content-meta">
-              <span>${show.year}</span>
-              <span>${show.rating}</span>
-            </div>
-            <div class="content-buttons">
-              <button class="content-btn series-detail-btn" data-series-id="${show.id}"><i class="fas fa-info-circle"></i></button>
-              <button class="content-btn"><i class="fas fa-plus"></i></button>
-              <button class="content-btn"><i class="fas fa-thumbs-up"></i></button>
-            </div>
-          </div>
-        `;
-        
-        seriesElement.innerHTML = infoHTML;
-        seriesContainer.appendChild(seriesElement);
-      });
-    }
-
-    function populateTrending() {
-      const trendingContainer = document.getElementById('trending');
-      
-      trending.forEach(item => {
-        const trendingElement = document.createElement('div');
-        trendingElement.className = 'content-item movie-item';
-        trendingElement.style.backgroundImage = `url('${item.backdrop}')`;
-        trendingElement.dataset.stream = item.stream;
-        
-        const infoHTML = `
-          <div class="content-info">
-            <h3 class="content-title">${item.title}</h3>
-            <div class="content-meta">
-              <span>${item.type === 'series' ? 'Serie' : 'Película'}</span>
-              <span>${item.year}</span>
-              <span>${item.rating}</span>
-            </div>
-            <div class="content-buttons">
-              <button class="content-btn play-btn" data-stream="${item.stream}"><i class="fas fa-play"></i></button>
-              <button class="content-btn"><i class="fas fa-plus"></i></button>
-              <button class="content-btn"><i class="fas fa-thumbs-up"></i></button>
-            </div>
-          </div>
-        `;
-        
-        trendingElement.innerHTML = infoHTML;
-        trendingContainer.appendChild(trendingElement);
-      });
-    }
-
-    function populateContinueWatching() {
-      const continueContainer = document.getElementById('continue-watching');
-      
-      continueWatching.forEach(item => {
-        const continueElement = document.createElement('div');
-        continueElement.className = 'content-item movie-item';
-        continueElement.style.backgroundImage = `url('${item.backdrop}')`;
-        continueElement.dataset.stream = item.stream;
-        
-        const infoHTML = `
-          <div class="content-info">
-            <h3 class="content-title">${item.title}</h3>
-            <div class="content-meta">
-              <span>${item.type === 'series' ? item.episode : 'Película'}</span>
-            </div>
-            <div class="progress-bar" style="height: 4px; background-color: #333; margin-top: 8px; border-radius: 2px;">
-              <div style="width: ${item.progress}%; height: 100%; background-color: #e50914; border-radius: 2px;"></div>
-            </div>
-            <div class="content-buttons">
-              <button class="content-btn play-btn" data-stream="${item.stream}"><i class="fas fa-play"></i></button>
-            </div>
-          </div>
-        `;
-        
-        continueElement.innerHTML = infoHTML;
-        continueContainer.appendChild(continueElement);
-      });
-    }
-
-    // SERIES DETAIL
-    function showSeriesDetail(seriesId) {
-      const serie = series.find(s => s.id == seriesId);
-      if (!serie) return;
-      
-      document.querySelector('.main-container').style.display = 'none';
-      document.getElementById('series-detail').style.display = 'block';
-      
-      // Set details
-      document.getElementById('detail-poster').style.backgroundImage = `url('${serie.poster}')`;
-      document.getElementById('detail-title').textContent = serie.title;
-      
-      const metaHTML = `
-        <span>${serie.year}</span>
-        <span>${serie.rating}</span>
-        <span>${serie.seasons.length} ${serie.seasons.length > 1 ? 'temporadas' : 'temporada'}</span>
-      `;
-      document.getElementById('detail-meta').innerHTML = metaHTML;
-      
-      document.getElementById('detail-description').textContent = serie.description;
-      
-      const genresHTML = serie.genres.map(genre => `<span class="genre-tag">${genre}</span>`).join('');
-      document.getElementById('detail-genres').innerHTML = genresHTML;
-      
-      // Populate seasons
-      const seasonSelect = document.getElementById('season-select');
-      seasonSelect.innerHTML = '';
-      serie.seasons.forEach(season => {
-        const option = document.createElement('option');
-        option.value = season.number;
-        option.textContent = `Temporada ${season.number}`;
-        seasonSelect.appendChild(option);
-      });
-      
-      // Set initial season
-      updateEpisodes(serie, 1);
-      
-      // Add event listener for season change
-      seasonSelect.addEventListener('change', function() {
-        updateEpisodes(serie, this.value);
-      });
-    }
-
-    function updateEpisodes(serie, seasonNumber) {
-      const season = serie.seasons.find(s => s.number == seasonNumber);
-      if (!season) return;
-      
-      const episodesContainer = document.getElementById('episodes-container');
-      episodesContainer.innerHTML = '';
-      
-      season.episodes.forEach(episode => {
-        const episodeElement = document.createElement('div');
-        episodeElement.className = 'episode';
-        episodeElement.dataset.stream = episode.stream;
-        
-        const episodeHTML = `
-          <div class="episode-thumb" style="background-image: url('${episode.thumb}')">
-            <div class="episode-number">${episode.number}</div>
-            <div class="episode-play">
-              <i class="fas fa-play"></i>
-            </div>
-          </div>
-          <div class="episode-info">
-            <div class="episode-title">
-              <h3>${episode.title}</h3>
-              <span class="episode-duration">${episode.duration}</span>
-            </div>
-            <p class="episode-description">${episode.description}</p>
-          </div>
-        `;
-        
-        episodeElement.innerHTML = episodeHTML;
-        episodesContainer.appendChild(episodeElement);
-        
-        // Add event listener for playing episode
-        episodeElement.addEventListener('click', function() {
-          playVideo(episode.stream);
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Credenciales válidas
+            const validCredentials = [
+                { email: 'hitvcorreo@gmail.com', password: 'mtpc9272' },
+                { email: 'hitvadmin@gmail.com', password: 'htvc5438' }
+            ];
+            
+            // Verificar credenciales
+            const isValid = validCredentials.some(cred => 
+                cred.email === email && cred.password === password
+            );
+            
+            if (isValid) {
+                // Iniciar sesión exitoso
+                window.location.href = 'pagina.html';
+            } else {
+                // Mostrar mensaje de error
+                errorMessage.style.display = 'block';
+                
+                // Limpiar el campo de contraseña
+                document.getElementById('password').value = '';
+                
+                // Evitar que se proceda con la navegación
+                return false;
+            }
         });
-      });
-    }
-
-    // PLAYER
-    function playVideo(streamUrl) {
-      const player = document.getElementById('video-player');
-      const playerContainer = document.getElementById('player-container');
-      
-      player.src = streamUrl;
-      playerContainer.style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // EVENT LISTENERS
-    document.addEventListener('DOMContentLoaded', function() {
-      // Populate content
-      populateMovies();
-      populateSeries();
-      populateTrending();
-      populateContinueWatching();
-      
-      // Hero play button
-      const heroPlayBtn = document.querySelector('.hero-buttons .btn-play');
-      if (heroPlayBtn) {
-        heroPlayBtn.addEventListener('click', function() {
-          const streamUrl = this.getAttribute('data-stream');
-          playVideo(streamUrl);
-        });
-      }
-      
-      // Close player
-      document.getElementById('close-player').addEventListener('click', function() {
-        const player = document.getElementById('video-player');
-        const playerContainer = document.getElementById('player-container');
-        
-        player.src = '';
-        playerContainer.style.display = 'none';
-      });
-      
-      // Slider controls
-      const sliders = document.querySelectorAll('.content-slider');
-      sliders.forEach(slider => {
-        const contentRow = slider.querySelector('.content-row');
-        const prevBtn = slider.querySelector('.slider-prev');
-        const nextBtn = slider.querySelector('.slider-next');
-        
-        prevBtn.addEventListener('click', function() {
-          contentRow.scrollBy({ left: -contentRow.offsetWidth * 0.75, behavior: 'smooth' });
-        });
-        
-        nextBtn.addEventListener('click', function() {
-          contentRow.scrollBy({ left: contentRow.offsetWidth * 0.75, behavior: 'smooth' });
-        });
-      });
-      
-      // Play buttons in content items
-      document.addEventListener('click', function(e) {
-        if (e.target.closest('.play-btn')) {
-          const playBtn = e.target.closest('.play-btn');
-          const streamUrl = playBtn.getAttribute('data-stream');
-          playVideo(streamUrl);
-        }
-      });
-      
-      // Series detail buttons
-      document.addEventListener('click', function(e) {
-        if (e.target.closest('.series-detail-btn')) {
-          const detailBtn = e.target.closest('.series-detail-btn');
-          const seriesId = detailBtn.getAttribute('data-series-id');
-          showSeriesDetail(seriesId);
-        }
-      });
-      
-      // Back to browse button
-      document.getElementById('back-to-browse').addEventListener('click', function() {
-        document.querySelector('.main-container').style.display = 'block';
-        document.getElementById('series-detail').style.display = 'none';
-      });
-      
-      // Header scroll effect
-      window.addEventListener('scroll', function() {
-        const header = document.getElementById('header');
-        if (window.scrollY > 50) {
-          header.classList.add('scrolled');
-        } else {
-          header.classList.remove('scrolled');
-        }
-      });
-    });
-  </script>
+    </script>
 </body>
 </html>
