@@ -219,6 +219,9 @@
                 
                 // Limpiar el campo de contraseña
                 document.getElementById('password').value = '';
+                
+                // Evitar que se proceda con la navegación
+                return false;
             }
         });
     </script>
